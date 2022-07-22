@@ -50,20 +50,20 @@ public:
 class Color
 {
 public:
-    int redVal;
-    int greenVal;
-    int blueVal;
+    int rv;
+    int gv;
+    int bv;
     Color()
     {
-        redVal = 0;
-        greenVal = 0;
-        blueVal = 0;
+        rv = 0;
+        gv = 0;
+        bv = 0;
     }
-    Color(int redVal, int greenVal, int blueVal)
+    Color(int rv, int gv, int bv)
     {
-        this->redVal = redVal;
-        this->greenVal = greenVal;
-        this->blueVal = blueVal;
+        this->rv = rv;
+        this->gv = gv;
+        this->bv = bv;
     }
 };
 
@@ -485,12 +485,11 @@ int main()
         triangles[i].points[2].y = p3.y;
         triangles[i].points[2].z = p3.z;
         triangles[i].points[2].scale();
-        triangles[i].color.redVal = rand() % 255;
-        triangles[i].color.greenVal = rand() % 255;
-        triangles[i].color.blueVal = rand() % 255;
+        triangles[i].color.rv = rand() % 255;
+        triangles[i].color.gv = rand() % 255;
+        triangles[i].color.bv = rand() % 255;
     }
     input.close();
-
 
     double **Z_Buffer = new double *[Screen_Height];
     Color **intensity_Buffer = new Color *[Screen_Height];
@@ -509,12 +508,11 @@ int main()
         }
     }
 
-    for (int tri = 0; tri < triangleCount; tri++)
+    for (Triangle tri : triangles)
     {
-
         int Top_Scanline, Bottom_Scanline;
-        double maxY_From_Points = max(triangles[tri].points[0].y, max(triangles[tri].points[1].y, triangles[tri].points[2].y));
-        double minY_From_Points = min(triangles[tri].points[0].y, min(triangles[tri].points[1].y, triangles[tri].points[2].y));
+        double maxY_From_Points = max(tri.points[0].y, max(tri.points[1].y, tri.points[2].y));
+        double minY_From_Points = min(tri.points[0].y, min(tri.points[1].y, tri.points[2].y));
 
         if (maxY_From_Points >= Top_Y)
         {
@@ -534,19 +532,19 @@ int main()
             Bottom_Scanline = Screen_Height - 1 - (int)round((minY_From_Points - Bottom_Y) / dy);
         }
 
-        double maxX_From_Points = max(triangles[tri].points[0].x, max(triangles[tri].points[1].x, triangles[tri].points[2].x));
-        double minX_From_Points = min(triangles[tri].points[0].x, min(triangles[tri].points[1].x, triangles[tri].points[2].x));
+        double maxX_From_Points = max(tri.points[0].x, max(tri.points[1].x, tri.points[2].x));
+        double minX_From_Points = min(tri.points[0].x, min(tri.points[1].x, tri.points[2].x));
 
         for (int row_no = Top_Scanline; row_no <= Bottom_Scanline; row_no++)
         {
             double ys = Top_Y - row_no * dy;
 
-            double x_1_2 = triangles[tri].points[0].x + (triangles[tri].points[1].x - triangles[tri].points[0].x) * (ys - triangles[tri].points[0].y) / (triangles[tri].points[1].y - triangles[tri].points[0].y);
-            double z_1_2 = triangles[tri].points[0].z + (triangles[tri].points[1].z - triangles[tri].points[0].z) * (ys - triangles[tri].points[0].y) / (triangles[tri].points[1].y - triangles[tri].points[0].y);
-            double x_2_3 = triangles[tri].points[1].x + (triangles[tri].points[2].x - triangles[tri].points[1].x) * (ys - triangles[tri].points[1].y) / (triangles[tri].points[2].y - triangles[tri].points[1].y);
-            double z_2_3 = triangles[tri].points[1].z + (triangles[tri].points[2].z - triangles[tri].points[1].z) * (ys - triangles[tri].points[1].y) / (triangles[tri].points[2].y - triangles[tri].points[1].y);
-            double x_3_1 = triangles[tri].points[2].x + (triangles[tri].points[0].x - triangles[tri].points[2].x) * (ys - triangles[tri].points[2].y) / (triangles[tri].points[0].y - triangles[tri].points[2].y);
-            double z_3_1 = triangles[tri].points[2].z + (triangles[tri].points[0].z - triangles[tri].points[2].z) * (ys - triangles[tri].points[2].y) / (triangles[tri].points[0].y - triangles[tri].points[2].y);
+            double x_1_2 = tri.points[0].x + (tri.points[1].x - tri.points[0].x) * (ys - tri.points[0].y) / (tri.points[1].y - tri.points[0].y);
+            double z_1_2 = tri.points[0].z + (tri.points[1].z - tri.points[0].z) * (ys - tri.points[0].y) / (tri.points[1].y - tri.points[0].y);
+            double x_2_3 = tri.points[1].x + (tri.points[2].x - tri.points[1].x) * (ys - tri.points[1].y) / (tri.points[2].y - tri.points[1].y);
+            double z_2_3 = tri.points[1].z + (tri.points[2].z - tri.points[1].z) * (ys - tri.points[1].y) / (tri.points[2].y - tri.points[1].y);
+            double x_3_1 = tri.points[2].x + (tri.points[0].x - tri.points[2].x) * (ys - tri.points[2].y) / (tri.points[0].y - tri.points[2].y);
+            double z_3_1 = tri.points[2].z + (tri.points[0].z - tri.points[2].z) * (ys - tri.points[2].y) / (tri.points[0].y - tri.points[2].y);
 
             double xa, xb, za, zb;
             int validPointCount = 0;
@@ -568,7 +566,7 @@ int main()
             }
             if (!isinf(x_3_1) && x_3_1 >= minX_From_Points && x_3_1 <= maxX_From_Points)
             {
-                if ((int)round(x_3_1 / dx) != (int)round(x_1_2 / dx) || (int)round(x_3_1 / dx) != (int)round(x_2_3 / dx))
+                if ((int)round(x_3_1 / dx) != (int)round(x_1_2 / dx) && (int)round(x_3_1 / dx) != (int)round(x_2_3 / dx))
                 {
                     validPointCount++;
                     valid_3_1 = true;
@@ -665,9 +663,9 @@ int main()
                 if (zp >= Front_Limit_Z && zp < Z_Buffer[row_no][col_no] && zp <= Rear_Limit_Z)
                 {
                     Z_Buffer[row_no][col_no] = zp;
-                    intensity_Buffer[row_no][col_no].redVal = triangles[tri].color.redVal;
-                    intensity_Buffer[row_no][col_no].greenVal = triangles[tri].color.greenVal;
-                    intensity_Buffer[row_no][col_no].blueVal = triangles[tri].color.blueVal;
+                    intensity_Buffer[row_no][col_no].rv = tri.color.rv;
+                    intensity_Buffer[row_no][col_no].gv = tri.color.gv;
+                    intensity_Buffer[row_no][col_no].bv = tri.color.bv;
                 }
                 zp += Constant_Term;
             }
@@ -686,17 +684,17 @@ int main()
     output << endl;
 
     /* saving outputs */
-    bitmap_image bitmapImage(Screen_Width, Screen_Height);
+    bitmap_image image_bitmap(Screen_Width, Screen_Height);
 
-    for (int row = 0; row < Screen_Height; row++)
+    for (int i = 0; i < Screen_Height; i++)
     {
-        for (int column = 0; column < Screen_Width; column++)
+        for (int j = 0; j < Screen_Width; j++)
         {
-            bitmapImage.set_pixel(column, row, intensity_Buffer[row][column].redVal, intensity_Buffer[row][column].greenVal, intensity_Buffer[row][column].blueVal);
+            image_bitmap.set_pixel(j, i, intensity_Buffer[i][j].rv, intensity_Buffer[i][j].gv, intensity_Buffer[i][j].bv);
         }
     }
     outp = inputFile + "istiak.bmp";
-    bitmapImage.save_image(outp);
+    image_bitmap.save_image(outp);
 
     for (int i = 0; i < Screen_Height; i++)
     {
