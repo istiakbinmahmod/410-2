@@ -565,19 +565,13 @@ int main(int argc, char **argv)
             }
             if (!isinf(x_2_3) && x_2_3 >= minX_From_Points && x_2_3 <= maxX_From_Points)
             {
-                if ((int)round(x_2_3 / dx) != (int)round(x_1_2 / dx))
-                {
                     validPointCount++;
                     valid_2_3 = true;
-                }
             }
             if (!isinf(x_3_1) && x_3_1 >= minX_From_Points && x_3_1 <= maxX_From_Points)
             {
-                if ((int)round(x_3_1 / dx) != (int)round(x_1_2 / dx) && (int)round(x_3_1 / dx) != (int)round(x_2_3 / dx))
-                {
                     validPointCount++;
                     valid_3_1 = true;
-                }
             }
             if (validPointCount == 0)
                 continue;
